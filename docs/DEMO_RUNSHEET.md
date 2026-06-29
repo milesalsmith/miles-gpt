@@ -12,7 +12,7 @@
 
 ---
 
-## ☑️ PRE-FLIGHT — Do this 15 minutes BEFORE you present
+## ☑️ PRE-FLIGHT (LIVE) — Do this 15 minutes BEFORE you present
 
 **1. Confirm you're logged into Cloudflare (only needed if running locally)**
 ```bash
@@ -42,12 +42,57 @@ You'll call this back live in the "pro move" at the end. Leave the tab open.
 
 ---
 
+## 🧪 LOCAL REHEARSAL — Pre-flight (practice today)
+
+> Use this to rehearse on your machine **without touching the live agent**.
+> Local dev runs a *separate* SQLite instance, so production `"miles"` stays
+> pristine for tomorrow. The demo body (A–D, Pro) below is **identical** — you
+> just point at `localhost:5173` instead of the live URL.
+
+**0. Confirm login** (Workers AI runs remotely even locally):
+```bash
+cd /Users/miles/workers-projects/bleeps-agent
+npx wrangler whoami      # expect miles@cloudflare.com / Build-a-Flare
+```
+
+**1. Boot the local agent:**
+```bash
+npm run dev              # wait for http://localhost:5173/ , then open it
+```
+Leave this terminal running; `Ctrl+C` to stop later.
+
+**2. ⚠️ Verify Tier 1 runs locally FIRST** — run **Demo C immediately**:
+- Returns **385** via the execute tool → local sandbox works; rehearse freely.
+- Errors → rehearse A/B/D/Pro locally and run **Demo C against the deployed
+  URL** instead (then reset `/numbers/` — see Reset below).
+
+**3. (Optional) clean slate** so Demo C's "watch it create" lands fresh:
+```
+Delete everything in /numbers/.
+```
+
+**4. PRE-SEED the magic-memory moment — do this LAST, after any rehearsal:**
+```
+Remember that I'm presenting you at a Cloudflare workshop today, the
+audience is technical, and we're covering Tiers 0 and 1 of the execution
+ladder.
+```
+
+### ♻️ Reset (between rehearsal runs, or before going live)
+- **Demo C only:** `Delete everything in /numbers/.` then re-run.
+- **Full wipe:** `Ctrl+C` → delete `.wrangler/state` (local-only, gitignored) →
+  `npm run dev` → re-seed (step 4).
+- A, B, D, Pro are idempotent — safe to repeat without resetting.
+
+---
+
 ## 🎬 OPENING LINE (say this before Demo A)
 
 > "This is Bleeps. It's not a chatbot — it's a single Durable Object on
 > Cloudflare's edge. It sleeps at zero cost, wakes on a message, remembers
 > everything, owns its own filesystem, and — as you'll see — writes and runs
-> its own code. The whole thing is about 135 lines. Let me show you."
+> its own code. The agent's brain is about 40 lines of code — the whole app,
+> with its UI, around 135. Let me show you."
 
 ---
 
@@ -69,9 +114,10 @@ What am I doing today?
 **WATCH FOR:** It answers correctly *after a full page reload* — the memory survived.
 
 **SAY THIS:**
-> "I refreshed the page — new connection, new everything. It still knows.
-> There's no database here. That memory is durable prompt state living in the
-> Durable Object's SQLite. It survives reloads, restarts, even hibernation."
+> "I refreshed the page — new connection, new everything. It still knows. This
+> is the **'memory it writes itself'** piece from the primitives slide: durable
+> prompt state in the Durable Object's SQLite — no database, no RAG. It
+> survives reloads, restarts, even hibernation."
 
 ---
 
@@ -91,10 +137,10 @@ What did I note about the workshop?
 **WATCH FOR:** It retrieves the answer by searching its own files.
 
 **SAY THIS:**
-> "It just wrote a file to its own filesystem, then searched it to answer.
-> I wired zero retrieval logic — no vector database, no RAG pipeline. The
-> model decides when to read, write, or grep its workspace. That's Tier 0 of
-> the execution ladder: a durable filesystem the agent operates itself."
+> "It just wrote a file to its own filesystem, then searched it to answer. I
+> wired zero retrieval logic — no vector database, no RAG pipeline. That's the
+> **'durable filesystem'** piece — Tier 0 of the execution ladder — the agent
+> decides when to read, write, or grep, and operates it itself."
 
 ---
 
@@ -116,9 +162,10 @@ JavaScript program**, then return the result (the sum is **385**).
 > "Watch what it just did. Instead of calling a 'write file' tool twenty times
 > and pulling each result back through the model, it wrote a single JavaScript
 > program and ran it — in a sandboxed Dynamic Worker that spun up in
-> milliseconds and has no network access. This is the jump from a chatbot that
-> *calls* tools to a coding agent that *writes code*. Same insight as Claude
-> Code or Codex — except this runs on the edge, not on my laptop."
+> milliseconds with no network access. That's the **'sandboxed execution'**
+> piece — Tier 1 of the ladder: the jump from a chatbot that *calls* tools to a
+> coding agent that *writes code*. Same insight as Claude Code or Codex —
+> except this runs on the edge, not on my laptop."
 
 > **(Optional follow-up to make it concrete):** type
 > `Show me the contents of /numbers/7.md` → it reads back `49`.
@@ -136,10 +183,11 @@ Write me a long story about a robot who learns to code.
 **STEP 3.** The page reconnects — the response **resumes / is still there**.
 
 **SAY THIS:**
-> "I crashed the page mid-thought and it recovered. Every turn is wrapped in a
-> durable fiber — if the isolate is evicted or the connection drops, the work
-> survives and resumes. That's infrastructure-grade resilience you get for
-> free by setting one flag: `chatRecovery = true`."
+> "I crashed the page mid-thought and it recovered. This is the **'crash-proof
+> turns'** piece: every turn runs in a durable fiber, so if the isolate is
+> evicted or the connection drops, the work survives and resumes. And you often
+> get it for free — it's the default in Think; Bleeps just makes it explicit
+> with `chatRecovery = true`."
 
 ---
 
@@ -154,17 +202,18 @@ technical audience, Tiers 0 and 1).
 
 **SAY THIS:**
 > "I told it that once, earlier this morning, in a different session. It just
-> remembered — because for this agent, remembering isn't a feature I bolted on.
-> It's how the infrastructure works."
+> remembered — that's the **'everything persists'** piece. For this agent,
+> remembering isn't a feature I bolted on. It's how the infrastructure works."
 
 ---
 
 ## 🎤 CLOSING LINE
 
-> "That's about 135 lines of TypeScript. Streaming, persistence, the agentic
-> loop, the sandbox — none of that is my code. It all comes from extending one
-> base class and declaring three bindings. The capabilities live in the
-> platform, not the logic. **That's what 'agent as infrastructure' means.**"
+> "That's about 40 lines for the agent itself — around 135 for the whole app
+> with its UI. Streaming, persistence, the agentic loop, the sandbox — none of
+> that is my code. It all comes from extending one base class and declaring
+> three bindings. The capabilities live in the platform, not the logic.
+> **That's what 'agent as infrastructure' means.**"
 
 ---
 
