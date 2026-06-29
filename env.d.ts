@@ -5,6 +5,8 @@ declare namespace Cloudflare {
   interface Env {
     AI: Ai;
     Bleeps: DurableObjectNamespace<import("./src/server").Bleeps>;
+    // Tier 1 — Dynamic Worker loader for sandboxed code execution (codemode).
+    LOADER: WorkerLoader;
   }
 }
 interface Env extends Cloudflare.Env {}

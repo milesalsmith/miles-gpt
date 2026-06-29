@@ -17,6 +17,12 @@ export default defineConfig({
   plugins: [
     cloudflareTest({
       wrangler: { configPath: "./wrangler.jsonc" },
+      // Run the pool fully local. The pool defaults remoteBindings=true, which
+      // — once we added the `worker_loaders` (Tier 1) binding — makes wrangler
+      // try to start a *remote* proxy session and demand a login. Our
+      // integration tests only touch the local Workspace via RPC, so we force
+      // everything local: fast, free, deterministic, no auth required.
+      remoteBindings: false,
       miniflare: {
         // Stub the AI binding so the agent loop never burns model credits
         // during tests. The fake mirrors the shape of the workers-ai

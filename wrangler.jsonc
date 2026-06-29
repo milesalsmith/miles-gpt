@@ -7,6 +7,12 @@
 
   "ai": { "binding": "AI" },
 
+  // Tier 1 of the execution ladder: a WorkerLoader binding lets Bleeps spin
+  // up ephemeral Dynamic Workers at runtime to execute LLM-written code in
+  // an isolated sandbox (no network access by default). Consumed by
+  // `createExecuteTool` in src/server.ts.
+  "worker_loaders": [{ "binding": "LOADER" }],
+
   "assets": {
     "not_found_handling": "single-page-application",
     // The Worker handles the agent WebSocket/HTTP routes; everything

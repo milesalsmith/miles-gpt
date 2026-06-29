@@ -1,5 +1,8 @@
 import { Think, type Session } from "@cloudflare/think";
+import { createExecuteTool } from "@cloudflare/think/tools/execute";
+import { createWorkspaceTools } from "@cloudflare/think/tools/workspace";
 import { routeAgentRequest } from "agents";
+import type { ToolSet } from "ai";
 import { createWorkersAI } from "workers-ai-provider";
 
 const BLEEPS_SOUL = `You are Bleeps, a small, friendly, slightly cheeky AI assistant built by
@@ -19,6 +22,12 @@ How you work:
 - You have a MEMORY context block. Whenever you learn something durable about
   Miles (preferences, ongoing projects, names of people he mentions, etc.),
   call set_context to update it. Don't store secrets or anything sensitive.
+- You have an EXECUTE tool that runs JavaScript in a secure sandbox. Inside it
+  you can call your workspace tools as \`codemode.read(...)\`, \`codemode.write(...)\`,
+  \`codemode.grep(...)\`, \`codemode.find(...)\`, etc. Prefer writing ONE program
+  with the execute tool over chaining many individual tool calls — e.g. to
+  count, aggregate, or transform across lots of files. The sandbox has no
+  network access, so it's safe for data work.
 - If you don't know something and the workspace doesn't help, say so plainly.`;
 
 /**
@@ -48,6 +57,32 @@ export class Bleeps extends Think<Env> {
     return createWorkersAI({ binding: this.env.AI })(
       "@cf/moonshotai/kimi-k2.6"
     );
+  }
+
+  /**
+   * Tier 1 of the execution ladder: code execution.
+   *
+   * `createExecuteTool` gives the model a single `execute` tool. The model
+   * writes a JavaScript program; that program runs in an ephemeral Dynamic
+   * Worker (via the LOADER binding) with the workspace tools exposed as
+   * `codemode.read`, `codemode.write`, `codemode.grep`, etc.
+   *
+   * `globalOutbound: null` (the default) means the sandbox has no network
+   * access — it can only touch the workspace. This is the "safe by
+   * construction" capability model: the sandbox starts with zero authority
+   * and we only hand it the workspace tools.
+   *
+   * Tools merge order in Think: workspace tools (built-in) + these +
+   * session tools (set_context). So `read`/`write`/`grep`/etc. are still
+   * available as direct calls; `execute` is the power tool on top.
+   */
+  getTools(): ToolSet {
+    return {
+      execute: createExecuteTool({
+        tools: createWorkspaceTools(this.workspace),
+        loader: this.env.LOADER
+      })
+    };
   }
 
   configureSession(session: Session) {
