@@ -27,14 +27,10 @@ npm run smoke
 ```
 Expect: `All checks passed.`
 
-**3. PRE-SEED the magic-memory moment** (do this once, before the audience arrives)
-Open the live URL and type this, then wait for the reply:
-```
-Remember that I'm presenting you at a Cloudflare workshop today, the
-audience is technical, and we're covering Tiers 0 and 1 of the execution
-ladder.
-```
-You'll call this back live in the "pro move" at the end. Leave the tab open.
+**3. DO NOT pre-seed.** The agent starts as a blank slate (empty memory, empty
+history) — that's intentional. You'll teach it everything **live** in Demo A,
+and the close recalls what it learned during the session. Don't type anything
+into the live URL before showtime.
 
 **4. Open two browser tabs** on the live URL (one to demo in, one clean spare).
 
@@ -71,12 +67,9 @@ Leave this terminal running; `Ctrl+C` to stop later.
 Delete everything in /numbers/.
 ```
 
-**4. PRE-SEED the magic-memory moment — do this LAST, after any rehearsal:**
-```
-Remember that I'm presenting you at a Cloudflare workshop today, the
-audience is technical, and we're covering Tiers 0 and 1 of the execution
-ladder.
-```
+**4. Leave memory blank.** No pre-seed — you teach the agent live in Demo A and
+the close recalls it. (If a rehearsal left facts behind, ask it to "clear your
+memory with set_context" so you start blank.)
 
 ### ♻️ Reset (between rehearsal runs, or before going live)
 - **Demo C only:** `Delete everything in /numbers/.` then re-run.
@@ -191,19 +184,21 @@ Write me a long story about a robot who learns to code.
 
 ---
 
-## ✨ THE PRO MOVE — Magic Memory (close with this)
+## ✨ THE CLOSE — Memory across the whole session
 
 **STEP 1.** Type exactly:
 ```
-What do you know about what I'm doing today?
+What do you know about me and what I'm doing today?
 ```
-**STEP 2.** Bleeps recalls what you pre-seeded in pre-flight (the workshop, the
-technical audience, Tiers 0 and 1).
+**STEP 2.** Bleeps recalls everything from this session — your name + the
+workshop (from Demo A's memory) and can pull the 20-attendees note (Demo B's
+file).
 
 **SAY THIS:**
-> "I told it that once, earlier this morning, in a different session. It just
-> remembered — that's the **'everything persists'** piece. For this agent,
-> remembering isn't a feature I bolted on. It's how the infrastructure works."
+> "Everything I've told it today — across a page refresh, across the whole
+> session — it still has. Memory in its own SQLite, plus a filesystem it
+> searches itself. That's the **'everything persists'** piece: remembering
+> isn't a feature I bolted on — it's how the infrastructure works."
 
 ---
 
@@ -245,7 +240,7 @@ C  "Use your execute tool to create 10 notes in /numbers/ named 1.md through
 D  "Write me a long story about a robot who learns to code."
     → REFRESH MID-STREAM                           [response recovers]
 
-PRO  "What do you know about what I'm doing today?" [pre-seeded magic memory]
+PRO  "What do you know about me and what I'm doing today?" [recalls Demo A + B]
 ```
 
 ---
